@@ -2,6 +2,9 @@
 
 #define MAX_ROW 5
 #define MAX_COL 5
+#define bool int
+#define true 1
+#define false 0
 
 struct point { int row, col; } stack[512];
 int top = 0;
@@ -22,11 +25,11 @@ int is_empty(void)
 }
 
 int maze[MAX_ROW][MAX_COL] = {
-	0, 1, 0, 0, 0,
-	0, 1, 0, 1, 0,
 	0, 0, 0, 0, 0,
-	0, 1, 1, 1, 0,
-	0, 0, 0, 1, 0
+	0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0
 };
 
 void print_maze(void)
@@ -62,49 +65,79 @@ void visit(int row, int col, struct point pre)
 	push(visit_point);
 }
 
-int main(void)
+int num = 0;
+
+bool dfs(struct point p)
 {
-	struct point p = { 0, 0 };
-
-	maze[p.row][p.col] = 2;
-	push(p);
-
-	while(!is_empty())
-	{
-		p = pop();
-		if(p.row == MAX_ROW - 1 && p.col == MAX_COL - 1) /* goal */
-			break;
-		if(p.col + 1 < MAX_COL && maze[p.row][p.col + 1] == 0) /* right */
-			visit(p.row, p.col+1, p);
-		if(p.row + 1 < MAX_ROW && maze[p.row + 1][p.col] == 0) /* down */
-			visit(p.row+1, p.col, p);
-		if(p.col - 1 >= 0 && maze[p.row][p.col - 1] == 0) /* left */
-			visit(p.row, p.col-1, p);
-		if(p.row - 1 >= 0 && maze[p.row - 1][p.col] == 0) /* up */
-			visit(p.row-1, p.col, p);
-		print_maze();
-	}
-/*	if(p.row == MAX_ROW - 1 && p.col == MAX_COL - 1)
-	{
-		printf("(%d, %d)\n", p.row, p.col);
-		while(predecessor[p.row][p.col].row != -1)
-		{
-			p = predecessor[p.row][p.col];
-			printf("(%d, %d)\n", p.row, p.col);
-		}
-	}*/
+	bool right, down, left, up;
+	right = down = left = up = false;
+	
 	if(p.row == MAX_ROW - 1 && p.col == MAX_COL - 1)
 	{
-		printf("(%d, %d)\n", p.row, p.col);
-		while(predecessor[p.row * 5 + p.col] != 0)
+		num++;
+		return true;
+	}
+	
+	maze[p.row][p.col] = 2;
+	//print_maze();
+	
+	if(p.col + 1 < MAX_COL && maze[p.row][p.col + 1] == 0)
+	{
+		p.col++;
+		if(dfs(p))
 		{
-			int t = p.row * 5 + p.col;
-			p.row = predecessor[t] / 5;
-			p.col = predecessor[t] % 5;
+			right = true;
 			printf("(%d, %d)\n", p.row, p.col);
 		}
+		p.col--;
+	}
+	if(p.row + 1 < MAX_ROW && maze[p.row + 1][p.col] == 0) /* down */
+	{
+		p.row++;
+		if(dfs(p))
+		{
+			down = true;
+			printf("(%d, %d)\n", p.row, p.col);
+		}
+		p.row--;
+	}
+	if(p.col - 1 >= 0 && maze[p.row][p.col - 1] == 0) /* left */
+	{
+		p.col--;
+		if(dfs(p))
+		{
+			left = true;
+			printf("(%d, %d)\n", p.row, p.col);
+		}
+		p.col++;
+	}
+	if(p.row - 1 >= 0 && maze[p.row - 1][p.col] == 0) /* up */
+	{
+		p.row--;
+		if(dfs(p))
+		{
+			up = true;
+			printf("(%d, %d)\n", p.row, p.col);
+		}
+		p.row++;
+	}
+	maze[p.row][p.col] = 0;
+	if(right | down | left | up == true)
+		return true;
+	else return false;
+}
+
+int main()
+{
+	struct point p = {0,0};
+	maze[p.row][p.col] = 2;
+
+	if(dfs(p))
+	{
+		printf("(0, 0)\n");
+		printf("%d\n", num);
 	}
 	else
-		printf("No path!\n");
+		printf("no path\n");
 	return 0;
 }
