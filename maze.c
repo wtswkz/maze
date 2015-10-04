@@ -29,7 +29,7 @@ int maze[MAX_ROW][MAX_COL] = {
 	0, 1, 0, 1, 0,
 	0, 0, 0, 0, 0,
 	0, 1, 1, 1, 0,
-	0, 0, 0, 1, 0
+	0, 0, 0, 0, 0
 };
 
 void print_maze(void)
@@ -67,12 +67,10 @@ void visit(int row, int col, struct point pre)
 
 int num = 0;
 
-bool dfs(struct point p)
+void dfs(struct point p)
 {
 	struct point n = p;
-	bool right, down, left, up;
-	right = down = left = up = false;
-	
+		
 	if(n.row == MAX_ROW - 1 && n.col == MAX_COL - 1)
 	{
 		num++;
@@ -85,68 +83,52 @@ bool dfs(struct point p)
 			printf("(%d, %d)\n", n.row, n.col);
 		}
 		printf("*********************\n");
-		return true;
 	}
+ 	else
+	{
+		maze[n.row][n.col] = 2;
+		//print_maze();
 	
-	maze[n.row][n.col] = 2;
-	//print_maze();
-	
-	if(n.col + 1 < MAX_COL && maze[n.row][n.col + 1] == 0)
-	{
-		n.col++;
-		predecessor[n.row * 5 + n.col] = p.row * 5 + p.col;
-		if(dfs(n))
+		if(n.col + 1 < MAX_COL && maze[n.row][n.col + 1] == 0)
 		{
-			right = true;
-			//printf("(%d, %d)\n", n.row, n.col);
+			n.col++;
+			predecessor[n.row * 5 + n.col] = p.row * 5 + p.col;
+			dfs(n);
+			n.col--;
 		}
-		n.col--;
-	}
-	if(n.row + 1 < MAX_ROW && maze[n.row + 1][n.col] == 0) /* down */
-	{
-		n.row++;
-		predecessor[n.row * 5 + n.col] = p.row * 5 + p.col;
-		if(dfs(n))
+		if(n.row + 1 < MAX_ROW && maze[n.row + 1][n.col] == 0) /* down */
 		{
-			down = true;
-			//printf("(%d, %d)\n", n.row, n.col);
+			n.row++;
+			predecessor[n.row * 5 + n.col] = p.row * 5 + p.col;
+			dfs(n);
+			n.row--;
 		}
-		n.row--;
-	}
-	if(n.col - 1 >= 0 && maze[n.row][n.col - 1] == 0) /* left */
-	{
-		n.col--;
-		predecessor[n.row * 5 + n.col] = p.row * 5 + p.col;
-		if(dfs(n))
+		if(n.col - 1 >= 0 && maze[n.row][n.col - 1] == 0) /* left */
 		{
-			left = true;
-			//printf("(%d, %d)\n", n.row, n.col);
+			n.col--;
+			predecessor[n.row * 5 + n.col] = p.row * 5 + p.col;
+			dfs(n);
+			n.col++;
 		}
-		n.col++;
-	}
-	if(n.row - 1 >= 0 && maze[n.row - 1][n.col] == 0) /* up */
-	{
-		n.row--;
-		predecessor[n.row * 5 + n.col] = p.row * 5 + p.col;
-		if(dfs(n))
+		if(n.row - 1 >= 0 && maze[n.row - 1][n.col] == 0) /* up */
 		{
-			up = true;
-			//printf("(%d, %d)\n", n.row, n.col);
+			n.row--;
+			predecessor[n.row * 5 + n.col] = p.row * 5 + p.col;
+			dfs(n);
+			n.row++;
 		}
-		n.row++;
+		maze[n.row][n.col] = 0;
 	}
-	maze[n.row][n.col] = 0;
-	if(right | down | left | up == true)
-		return true;
-	else return false;
 }
 
 int main()
 {
 	struct point p = {0,0};
 	maze[p.row][p.col] = 2;
+	
+	dfs(p);
 
-	if(dfs(p))
+	if(predecessor[24] != 0)
 	{
 		//printf("(0, 0)\n");
 		printf("%d\n", num);
