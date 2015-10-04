@@ -106,5 +106,6 @@ int main(void)
 	}
 	else
 		printf("No path!\n");
+
 	return 0;
 }
