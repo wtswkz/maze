@@ -41,8 +41,10 @@ void print_maze(void)
 	printf("*********\n");
 }
 
+/* predecessor 1 */
 int predecessor[MAX_ROW * MAX_COL] = {0};
 
+/* predecessor 2 */
 /*
 struct point predecessor[MAX_ROW][MAX_COL] = {
 	{{-1,-1}, {-1,-1}, {-1,-1}, {-1,-1}, {-1,-1}},
@@ -84,6 +86,8 @@ int main(void)
 			visit(p.row-1, p.col, p);
 		print_maze();
 	}
+	
+	/*****************************stack*******************************/
 /*	if(p.row == MAX_ROW - 1 && p.col == MAX_COL - 1)
 	{
 		printf("(%d, %d)\n", p.row, p.col);
@@ -106,6 +110,7 @@ int main(void)
 	}
 	else
 		printf("No path!\n");
+	/*****************************stack*******************************/
 
 	return 0;
 }
