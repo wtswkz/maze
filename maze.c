@@ -3,22 +3,22 @@
 #define MAX_ROW 5
 #define MAX_COL 5
 
-struct point { int row, col; } stack[512];
-int top = 0;
+struct point { int row, col, predecessor; } queue[512];
+int head = 0, tail = 0;
 
-void push(struct point p)
+void enqueue(struct point p)
 {
-	stack[top++] = p;
+	queue[tail++] = p;
 }
 
-struct point pop(void)
+struct point dequeue(void)
 {
-	return stack[--top];
+	return queue[head++];
 }
 
 int is_empty(void)
 {
-	return top == 0;
+	return head == tail;
 }
 
 int maze[MAX_ROW][MAX_COL] = {
@@ -41,73 +41,44 @@ void print_maze(void)
 	printf("*********\n");
 }
 
-/* predecessor 1 */
-int predecessor[MAX_ROW * MAX_COL] = {0};
-
-/* predecessor 2 */
-/*
-struct point predecessor[MAX_ROW][MAX_COL] = {
-	{{-1,-1}, {-1,-1}, {-1,-1}, {-1,-1}, {-1,-1}},
-	{{-1,-1}, {-1,-1}, {-1,-1}, {-1,-1}, {-1,-1}},
-	{{-1,-1}, {-1,-1}, {-1,-1}, {-1,-1}, {-1,-1}},
-	{{-1,-1}, {-1,-1}, {-1,-1}, {-1,-1}, {-1,-1}},
-	{{-1,-1}, {-1,-1}, {-1,-1}, {-1,-1}, {-1,-1}}
-};
-*/
-
-void visit(int row, int col, struct point pre)
+void visit(int row, int col)
 {
-	struct point visit_point = { row, col };
+	struct point visit_point = { row, col, head - 1 };
 	maze[row][col] = 2;
-	//predecessor[row][col] = pre;
-	predecessor[row * 5 + col] = pre.row * 5 + pre.col;
-	push(visit_point);
+	enqueue(visit_point);
 }
 
 int main(void)
 {
-	struct point p = { 0, 0 };
+	struct point p = { 0, 0, -1 };
 
 	maze[p.row][p.col] = 2;
-	push(p);
+	enqueue(p);
 
 	while(!is_empty())
 	{
-		p = pop();
+		p = dequeue();
 		if(p.row == MAX_ROW - 1 && p.col == MAX_COL - 1) /* goal */
 			break;
 		if(p.col + 1 < MAX_COL && maze[p.row][p.col + 1] == 0) /* right */
-			visit(p.row, p.col+1, p);
+			visit(p.row, p.col+1);
 		if(p.row + 1 < MAX_ROW && maze[p.row + 1][p.col] == 0) /* down */
-			visit(p.row+1, p.col, p);
+			visit(p.row+1, p.col);
 		if(p.col - 1 >= 0 && maze[p.row][p.col - 1] == 0) /* left */
-			visit(p.row, p.col-1, p);
+			visit(p.row, p.col-1);
 		if(p.row - 1 >= 0 && maze[p.row - 1][p.col] == 0) /* up */
-			visit(p.row-1, p.col, p);
+			visit(p.row-1, p.col);
 		print_maze();
 	}
-	
-	/*****************************stack*******************************/
-/*	if(p.row == MAX_ROW - 1 && p.col == MAX_COL - 1)
-	{
-		printf("(%d, %d)\n", p.row, p.col);
-		while(predecessor[p.row][p.col].row != -1)
-		{
-			p = predecessor[p.row][p.col];
-			printf("(%d, %d)\n", p.row, p.col);
-		}
-	}*/
 	if(p.row == MAX_ROW - 1 && p.col == MAX_COL - 1)
 	{
 		printf("(%d, %d)\n", p.row, p.col);
-		while(predecessor[p.row * 5 + p.col] != 0)
+		while(p.predecessor != -1)
 		{
-			int t = p.row * 5 + p.col;
-			p.row = predecessor[t] / 5;
-			p.col = predecessor[t] % 5;
+			p = queue[p.predecessor];
 			printf("(%d, %d)\n", p.row, p.col);
 		}
-	}
+	}	
 	else
 		printf("No path!\n");
 	/*****************************stack*******************************/
